@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPv6 Address Manager</title>
+</head>
+<body>
+    <h1>IPv6 Address Manager</h1>
+    <label for="search">Search IPv6:</label>
+    <input type="text" id="search" oninput="searchIPv6()">
+    <ul id="results"></ul>
+
+    <h2>IPv6 Addresses:</h2>
+    <ul>
+        {% for ipv6 in ipv6_addresses %}
+            <li>{{ ipv6.address }} - {{ ipv6.description }}</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('add_ipv6') }}">Add IPv6 Address</a>
+
+    <script>
+        function searchIPv6() {
+            let query = document.getElementById('search').value;
+            if (query.length >= 3) {
+                fetch(`/search?query=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let resultsElement = document.getElementById('results');
+                        resultsElement.innerHTML = '';
+                        data.addresses.forEach(address => {
+                            let li = document.createElement('li');
+                            li.textContent = address;
+                            resultsElement.appendChild(li);
+                        });
+                    });
+            }
+        }
+    </script>
+</body>
+</html>
