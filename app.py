@@ -5,7 +5,8 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, Length
-import app.routes
+from app.rutas import init_app
+
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -13,6 +14,17 @@ db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+init_app(app)
+
+
+app.config['TEMPLATES_AUTO_RELOAD'] = True  # Recargar automáticamente las plantillas en modo de desarrollo
+app.template_folder = 'templates'
+
+
+app.config["SQLALCHEMY_ECHO"] = True
+app.config["SQLALCHEMY_RECORD_QUERIES"] = True
+
 
 
 class User(db.Model, UserMixin):

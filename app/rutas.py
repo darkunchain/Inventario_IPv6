@@ -1,4 +1,4 @@
-from flask import render_template, request, jsonify, redirect, url_for, flash
+from flask import Blueprint,render_template, request, jsonify, redirect, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
 from app import app, db, bcrypt, login_manager
 from app.models import User, IPv6Address
@@ -8,12 +8,18 @@ from wtforms import StringField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, Length
 
 
+ruta = Blueprint('ruta_main', __name__)
 
-@app.route('/')
+
+@ruta.route('/test')
+def test():
+    return 'hello world'
+
+@ruta.route('/')
 def index():
     return render_template('index.html', ipv6_addresses=IPv6Address.query.all())
 
-@app.route('/login', methods=['GET', 'POST'])
+@ruta.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
@@ -21,24 +27,24 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and bcrypt.check_password_hash(user.password, password):
             login_user(user)
-            return redirect(url_for('index'))
+            return redirect(url_for('ruta_main.index'))
         else:
             flash('Invalid username or password', 'danger')
     return render_template('login.html')
 
-@app.route('/logout')
+@ruta.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('login'))
 
-@app.route('/dashboard')
+@ruta.route('/dashboard')
 # ... (resto del código)
 
-@app.route('/search', methods=['GET'])
+@ruta.route('/search', methods=['GET'])
 # ... (resto del código)
 
-@app.route('/add', methods=['GET', 'POST'])
+@ruta.route('/add', methods=['GET', 'POST'])
 def add_ipv6():
     form = AddIPv6Form()
     if form.validate_on_submit():
@@ -49,3 +55,6 @@ def add_ipv6():
         return redirect(url_for('index'))
     return render_template('add_ipv6.html', form=form)
 
+
+def init_app(app):
+    app.register_blueprint(ruta)
